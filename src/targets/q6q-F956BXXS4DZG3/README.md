@@ -1,6 +1,8 @@
 # q6q / F956BXXS4DZG3
 
-Static AP/kernel analysis is complete for the supplied exact DZG3 boot image.
+Exact-firmware target for Samsung Galaxy Z Fold6 `SM-F956B`, build `F956BXXS4DZG3`.
+
+Static derivation status: **complete** for the supplied DZG3 AP boot image and matching BL archive. The target header is based on target-derived evidence rather than sibling-device assumptions.
 
 Verified target facts:
 
@@ -11,9 +13,13 @@ Verified target facts:
 - trace event ID: `106`
 - worker caller offset: `0x000db1a0`
 - pselect word shift: `3`
-- P0 fingerprint generated from DZG3 and byte-identical to the checked-in E3Q DZF2 table
+- target-generated P0 fingerprint table
 - F956B-specific `nfnetlink_log` Image offset: `0x016a61e6`
+- `P0_PHYS_OFFSET = 0x80000000`
+- `P0_KERNEL_PHYS_LOAD = 0x80080000`
 
-`target.h` is intentionally not present yet. The matching `BL_F956BXXS4DZG3...` Qualcomm `abl.elf` is required to prove `P0_PHYS_OFFSET` and `P0_KERNEL_PHYS_LOAD`. Do not substitute E3Q or another Snapdragon target's physical-load constants.
+The physical-load constants are independently derived from the matching DZG3 Qualcomm `LinuxLoader` and XBL post-DDR device tree. They are not copied from E3Q.
 
-See `docs/SM-F956B-F956BXXS4DZG3.md` for the full provenance and recovered offsets.
+See `docs/SM-F956B-F956BXXS4DZG3.md` for the kernel/profile derivation and `docs/SM-F956B-F956BXXS4DZG3-ABL.md` for the Qualcomm ABL/XBL derivation.
+
+Hardware exploit execution and KernelSU late-load remain separate validation steps; this checked-in profile is not yet a claim of device-tested root.
