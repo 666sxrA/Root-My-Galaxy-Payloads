@@ -8,6 +8,13 @@ on:
       - 'src/**'
       - 'Makefile'
       - '.github/workflows/build-f956b-dzg3.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'Makefile'
+      - '.github/workflows/build-f956b-dzg3.yml'
   workflow_dispatch:
 
 jobs:
