@@ -22,6 +22,6 @@ The physical-load constants are independently derived from the matching DZG3 Qua
 
 See `docs/SM-F956B-F956BXXS4DZG3.md` for the kernel/profile derivation and `docs/SM-F956B-F956BXXS4DZG3-ABL.md` for the Qualcomm ABL/XBL derivation.
 
-The draft PR runs a default-branch validation workflow that compiles the exact target payload and exact-vermagic Samsung KernelSU module before any hardware test.
+The draft PR is validated by `.github/workflows/validate-f956b-dzg3-port.yml` from the default branch. It compiles the exact target payload and exact-vermagic Samsung KernelSU module before any hardware test.
 
 Hardware exploit execution and KernelSU late-load remain separate validation steps; this checked-in profile is not yet a claim of device-tested root.
