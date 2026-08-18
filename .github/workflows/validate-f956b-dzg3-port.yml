@@ -1,0 +1,83 @@
+name: Validate F956B DZG3 port
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/targets/q6q-F956BXXS4DZG3/**'
+      - 'src/**'
+      - 'kernelsu/**'
+      - 'Makefile'
+      - 'docs/SM-F956B-F956BXXS4DZG3*'
+
+jobs:
+  payload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: android-actions/setup-android@v3
+      - name: Install Android NDK r29
+        run: sdkmanager --install 'ndk;29.0.14206865'
+      - name: Build exact F956B DZG3 payload
+        run: |
+          set -euxo pipefail
+          export ANDROID_NDK_HOME="$ANDROID_SDK_ROOT/ndk/29.0.14206865"
+          make TARGET=q6q-F956BXXS4DZG3 release
+          test "$(stat -c %s build/q6q-F956BXXS4DZG3/cve-2026-43499-app.release.so)" -eq 104128
+          sha256sum build/q6q-F956BXXS4DZG3/cve-2026-43499-app.release.so | tee build/q6q-F956BXXS4DZG3/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q6q-F956BXXS4DZG3-payload
+          path: |
+            build/q6q-F956BXXS4DZG3/cve-2026-43499-app.release.so
+            build/q6q-F956BXXS4DZG3/SHA256SUMS
+          if-no-files-found: error
+
+  kernelsu-module:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch and patch KernelSU v3.2.5
+        run: |
+          set -euxo pipefail
+          git clone https://github.com/tiann/KernelSU.git ksu-src
+          cd ksu-src
+          git checkout b0bc817b4e966aa6aa830834eaf6ef765d821d40
+          git apply "$GITHUB_WORKSPACE/kernelsu/patches/KernelSU-v3.2.5-samsung-kdp-rkp-defex.patch"
+      - name: Build exact-vermagic Samsung KernelSU module
+        run: |
+          set -euxo pipefail
+          TARGET_RELEASE='6.1.145-android14-11-33418572-abF956BXXS4DZG3'
+          docker run --rm \
+            -e TARGET_RELEASE="$TARGET_RELEASE" \
+            -v "$GITHUB_WORKSPACE/ksu-src:/workspace" \
+            -w /workspace/kernel \
+            ghcr.io/ylarod/ddk-min:android14-6.1-20260313 \
+            bash -lc '
+              set -euxo pipefail
+              sed -i "s/6.1.166-dirty/${TARGET_RELEASE}/g" \
+                "$KDIR/include/generated/utsrelease.h" \
+                "$KDIR/include/config/kernel.release"
+              make clean
+              CONFIG_KSU=m \
+              CONFIG_KSU_SAMSUNG_KDP=y \
+              CONFIG_KSU_SAMSUNG_RKP=y \
+              CONFIG_KSU_SAMSUNG_DEFEX=y \
+              CC=clang make -j"$(nproc)"
+              modinfo ./kernelsu.ko
+              modinfo -F vermagic ./kernelsu.ko | grep -F "${TARGET_RELEASE} SMP preempt mod_unload modversions aarch64"
+              llvm-strip -d ./kernelsu.ko
+            '
+      - name: Stage KernelSU module
+        run: |
+          set -euxo pipefail
+          mkdir -p build/q6q-F956BXXS4DZG3-kernelsu
+          cp ksu-src/kernel/kernelsu.ko build/q6q-F956BXXS4DZG3-kernelsu/android14-6.1_kernelsu-q6q-F956BXXS4DZG3-kdp.ko
+          modinfo build/q6q-F956BXXS4DZG3-kernelsu/android14-6.1_kernelsu-q6q-F956BXXS4DZG3-kdp.ko | tee build/q6q-F956BXXS4DZG3-kernelsu/modinfo.txt
+          sha256sum build/q6q-F956BXXS4DZG3-kernelsu/android14-6.1_kernelsu-q6q-F956BXXS4DZG3-kdp.ko | tee build/q6q-F956BXXS4DZG3-kernelsu/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q6q-F956BXXS4DZG3-kernelsu
+          path: build/q6q-F956BXXS4DZG3-kernelsu/
+          if-no-files-found: error
