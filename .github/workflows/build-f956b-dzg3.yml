@@ -1,0 +1,40 @@
+name: Build F956B DZG3 payload
+
+on:
+  push:
+    branches:
+      - agent/f956b-dzg3-port
+    paths:
+      - 'src/**'
+      - 'Makefile'
+      - '.github/workflows/build-f956b-dzg3.yml'
+  workflow_dispatch:
+
+jobs:
+  payload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK r29
+        run: sdkmanager --install 'ndk;29.0.14206865'
+
+      - name: Build exact F956B DZG3 payload
+        run: |
+          set -euxo pipefail
+          export ANDROID_NDK_HOME="$ANDROID_SDK_ROOT/ndk/29.0.14206865"
+          make TARGET=q6q-F956BXXS4DZG3 release
+          test "$(stat -c %s build/q6q-F956BXXS4DZG3/cve-2026-43499-app.release.so)" -eq 104128
+          sha256sum build/q6q-F956BXXS4DZG3/cve-2026-43499-app.release.so | tee build/q6q-F956BXXS4DZG3/SHA256SUMS
+
+      - name: Upload payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: q6q-F956BXXS4DZG3-payload
+          path: |
+            build/q6q-F956BXXS4DZG3/cve-2026-43499-app.release.so
+            build/q6q-F956BXXS4DZG3/SHA256SUMS
+          if-no-files-found: error
