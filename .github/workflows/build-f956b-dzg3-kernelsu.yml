@@ -7,6 +7,12 @@ on:
     paths:
       - 'kernelsu/**'
       - '.github/workflows/build-f956b-dzg3-kernelsu.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'kernelsu/**'
+      - '.github/workflows/build-f956b-dzg3-kernelsu.yml'
   workflow_dispatch:
 
 jobs:
