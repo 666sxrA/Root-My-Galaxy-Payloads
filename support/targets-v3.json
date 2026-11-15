@@ -318,6 +318,7 @@
       }
     },
     {
+    {
       "payloadId": "e3q-S9280ZCS6DZF2",
       "displayName": "Galaxy S24 Ultra China | Kernel 6.1.145 (S9280ZCS6DZF2)",
       "models": ["SM-S9280"],
@@ -331,6 +332,20 @@
         "url": "https://raw.githubusercontent.com/BuSung-dev/Root-My-Galaxy-Payloads/main/kernelsu/ksud-e3q-S9280ZCS6DZF2-kdp",
         "size": 4879856
       }
+    },
+    {
+      "payloadId": "f956-SM-F956BXXS4DZG3",
+      "displayName": "Galaxy Z Fold6 | Kernel 6.1.145 (F956BXXS4DZG3)",
+      "models": ["SM-F956B"],
+      "kernelVersions": ["6.1.145"],
+      "requiresFreshP0Session": true,
+      "exploit": {
+        "url": "https://raw.githubusercontent.com/BuSung-dev/Root-My-Galaxy-Payloads/main/artifacts/f956-SM-F956BXXS4DZG3/cve-2026-43499-app.so",
+        "size": 104128
+      },
+      "kernelsu": {
+        "url": "https://raw.githubusercontent.com/BuSung-dev/Root-My-Galaxy-Payloads/main/kernelsu/ksud-f956-SM-F956BXXS4DZG3-kdp",
+        "size": 4879856
+      }
     }
-  ]
-}
+  ]}
